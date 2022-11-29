@@ -13,12 +13,15 @@
 void show_menu();
 void clear_input_buffer();
 
+// function counting runs in file, used only for the experiment
+int count_runs(const char* filename);
+
 
 int main(int argc, char* argv[])
 {
-   /* FILE* experiment_file = fopen("experiment_file.txt", "w");
-    fprintf(experiment_file, "RECORDS\tRUNS\tTHEORETICAL_PHASES\tREAL_PHASES\tTHEORETICAL_TOTAL_DISK_OPERATIONS\tTOTAL_DISK_OPERATIONS\tb-factor\n");
-    fclose(experiment_file);*/
+    //FILE* experiment_file = fopen("experiment_file.txt", "w");
+    //fprintf(experiment_file, "RECORDS\tRUNS\tTHEORETICAL_PHASES\tREAL_PHASES\tTHEORETICAL_TOTAL_DISK_OPERATIONS\tTOTAL_DISK_OPERATIONS\tb-factor\n");
+    //fclose(experiment_file);
 
     if (argc > 1)
     {
@@ -48,7 +51,7 @@ int main(int argc, char* argv[])
             printf("File to sort:\n");
             print_file(filename);
            /* fopen("experiment_file.txt", "a");
-            fprintf(experiment_file, "%d\t", number_of_records);
+            fprintf(experiment_file, "%d\t%d\t", number_of_records, count_runs(filename));
             fclose(experiment_file);*/
 
             clear_save_count();
@@ -100,4 +103,34 @@ void clear_input_buffer()
     int ch;
     while ((ch = getchar()) != '\n' && ch != EOF)
         ;
+}
+
+int count_runs(const char* filename)
+{
+    FILE* file;
+    file = fopen(filename, "rb");
+
+    RecordExtractor re;
+    record_extractor_init(&re, file, 'r');
+    Record record;
+    int count = 0;
+    float previous_key = INITIAL_VALUE;
+    record = get_next_record(&re);
+    if (is_record_empty(record))
+        return count;
+    else
+        count++;
+    float key = get_key(record);
+    while (!is_record_empty(record))
+    {
+        if (compare_keys(key, previous_key) < 0)
+            count++;
+        record = get_next_record(&re);
+        previous_key = key;
+        key = get_key(record);
+    }
+
+    fclose(file);
+
+    return count;
 }

@@ -26,11 +26,6 @@ void sort(const char* filename)
 
     Runs runs = distribute(filename, tape1_name, tape2_name);
 
-    // data to analyze in report
-    int runs_count = runs.larger_tape_runs + runs.smaller_tape_runs;
-    float theoretical_phases_count = 1.45 * log2(runs_count);
-    float theoretical_total_disk_operations = 1.45 * log2(runs_count);
-
    /* printf("RUNS: %d, %d, %d index: %d\n", runs.larger_tape_runs, runs.smaller_tape_runs, runs.dummy, runs.larger_tape_index);
     print_file(tape1_name);
     print_file(tape2_name);*/
@@ -43,9 +38,9 @@ void sort(const char* filename)
         sorted_tape = merge(tape2_name, tape1_name, NULL, 0, tape3_name, runs, &phase_count);
 
     printf("\nPHASES: %d\n", phase_count);
-    /*FILE* experiment_file = fopen("experiment_file.txt", "a");
-    fprintf(experiment_file, "%d\t%f\t%d\t%d\t%d\t%d\n", runs_count, theoretical_phases_count, phase_count, 0, get_save_count() + get_load_count(), RECORDS_IN_BLOCK);
-    fclose(experiment_file);*/
+    //FILE* experiment_file = fopen("experiment_file.txt", "a");
+    //fprintf(experiment_file, "%d\t%d\t%d\t%d\t%d\n", 0, phase_count, 0, get_save_count() + get_load_count(), RECORDS_IN_BLOCK);
+    //fclose(experiment_file);
 
     write_file_to_file(sorted_tape, filename);
 }
@@ -189,7 +184,6 @@ Runs distribute(const char* filename, const char* tape1_name, const char* tape2_
 // main sorting recursive function, returns name of the tape with sorted file
 char* merge(const char* tape1_name, const char* tape2_name, fpos_t pos, int record_index, const char* tape3_name, Runs runs, int* phase)
 {
-    (*phase)++;
     //printf("\nPHASE %d:\n", *phase);
     //printf("\nMERGE\nRUNS: %d, %d, %d\n", runs.larger_tape_runs, runs.smaller_tape_runs, runs.dummy);
     //print_file(tape1_name);
@@ -197,6 +191,7 @@ char* merge(const char* tape1_name, const char* tape2_name, fpos_t pos, int reco
     //print_file(tape3_name);
     if (runs.smaller_tape_runs == 0)
         return tape1_name;
+    (*phase)++;
     FILE* tape1 = fopen(tape1_name, "rb");
     FILE* tape2 = fopen(tape2_name, "rb");
     FILE* tape3 = fopen(tape3_name, "wb");
